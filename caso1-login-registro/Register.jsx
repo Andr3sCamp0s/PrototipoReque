@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LogoJP from "../assets/LogoJP.jpg";
-import axios from "axios";
+import { supabase } from "../supabase";
 
 function Register() {
 
@@ -110,23 +110,36 @@ function Register() {
     }
 
     // Registro exitoso
+    // Registro exitoso
     try {
 
-      const respuesta = await axios.post("http://localhost:3000/register", {
-        correo: correo,
-        usuario: usuario,
-        password: password
-      });
+      const { error } = await supabase
+        .from("clientes")
+        .insert([
+          {
+            correo: correo,
+            nombre_usuario: usuario,
+            password: password
+          }
+        ]);
+
+      if (error) {
+
+        setTipoMensaje("error");
+        setMensaje(error.message);
+        return;
+
+      }
 
       setTipoMensaje("success");
-      setMensaje(respuesta.data.mensaje);
+      setMensaje("Usuario registrado correctamente.");
 
       setCorreo("");
       setUsuario("");
       setPassword("");
       setConfirmarPassword("");
 
-      // 🔥 NAVEGACIÓN CORRECTA
+      //NAVEGACIÓN CORRECTA
       setTimeout(() => {
         navigate("/reservar-cita");
       }, 800);
@@ -134,12 +147,8 @@ function Register() {
     } catch (error) {
 
       setTipoMensaje("error");
+      setMensaje("No se pudo conectar con Supabase.");
 
-      if (error.response) {
-        setMensaje(error.response.data.mensaje);
-      } else {
-        setMensaje("No se pudo conectar con el servidor.");
-      }
     }
   }
 

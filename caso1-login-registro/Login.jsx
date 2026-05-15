@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import LogoJP from "../assets/LogoJP.jpg";
+import { supabase } from "../supabase";
 
 function Login() {
 
@@ -23,26 +23,33 @@ function Login() {
     }
 
     try {
-      const respuesta = await axios.post("http://localhost:3000/login", {
-        correo,
-        password
-      });
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("*")
+        .eq("correo", correo)
+        .eq("password", password)
+        .single();
+
+      if (error || !data) {
+
+        setTipoMensaje("error");
+        setMensaje("Credenciales incorrectas.");
+        return;
+
+      }
 
       setTipoMensaje("success");
-      setMensaje(respuesta.data.mensaje);
+      setMensaje("Inicio de sesión exitoso.");
 
       setTimeout(() => {
-        navigate("/reservar-cita"); // 🔥 CORREGIDO AQUÍ
+        navigate("/reservar-cita");
       }, 1000);
 
     } catch (error) {
-      setTipoMensaje("error");
 
-      if (error.response) {
-        setMensaje(error.response.data.mensaje);
-      } else {
-        setMensaje("No se pudo conectar con el servidor.");
-      }
+      setTipoMensaje("error");
+      setMensaje("No se pudo conectar con Supabase.");
+
     }
   }
 
