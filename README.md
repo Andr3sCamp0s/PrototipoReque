@@ -111,8 +111,14 @@ ON clientes
 FOR INSERT
 TO public
 WITH CHECK (true);
+
+CREATE POLICY "Permitir login"
+ON clientes
+FOR SELECT
+USING (true);
 ```
 
+Si hay algun error con validacion de informacion o directamente con la base de datos probablemente sea una de estas "Policys" asi que deben crear una dando el permiso para la accion que desean hacer
 ---
 
 # 6. Ejecutar el proyecto

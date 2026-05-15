@@ -12,46 +12,65 @@ function Login() {
 
   const navigate = useNavigate();
 
-  async function manejarLogin(e) {
-    e.preventDefault();
-    setMensaje("");
+ async function manejarLogin(e) {
 
-    if (correo.trim() === "" || password.trim() === "") {
-      setTipoMensaje("error");
-      setMensaje("Todos los campos son obligatorios.");
-      return;
-    }
+  e.preventDefault();
 
-    try {
-      const { data, error } = await supabase
-        .from("clientes")
-        .select("*")
-        .eq("correo", correo)
-        .eq("password", password)
-        .single();
+  setMensaje("");
 
-      if (error || !data) {
+  if (correo.trim() === "" || password.trim() === "") {
 
-        setTipoMensaje("error");
-        setMensaje("Credenciales incorrectas.");
-        return;
+    setTipoMensaje("error");
+    setMensaje("Todos los campos son obligatorios.");
+    return;
 
-      }
-
-      setTipoMensaje("success");
-      setMensaje("Inicio de sesión exitoso.");
-
-      setTimeout(() => {
-        navigate("/reservar-cita");
-      }, 1000);
-
-    } catch (error) {
-
-      setTipoMensaje("error");
-      setMensaje("No se pudo conectar con Supabase.");
-
-    }
   }
+
+  try {
+
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("correo", correo.trim())
+      .eq("password", password.trim());
+
+    console.log(data);
+    console.log(error);
+
+    if (error) {
+
+      setTipoMensaje("error");
+      setMensaje(error.message);
+      return;
+
+    }
+
+    if (data.length === 0) {
+
+      setTipoMensaje("error");
+      setMensaje("Credenciales incorrectas.");
+      return;
+
+    }
+
+    setTipoMensaje("success");
+    setMensaje("Inicio de sesión exitoso.");
+
+    setTimeout(() => {
+
+      navigate("/reservar-cita");
+
+    }, 1000);
+
+  } catch (error) {
+
+    console.log(error);
+
+    setTipoMensaje("error");
+    setMensaje("No se pudo conectar con Supabase.");
+
+  }
+}
 
   return (
     <div className="min-h-screen bg-red-500 flex items-center justify-center">
